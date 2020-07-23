@@ -1,0 +1,8 @@
+.configrc
+yarn-error.log
+/node_modules/
+/public/build/
+/src/json/*.json
+/test/ledger-cli-example-master
+
+.DS_Store

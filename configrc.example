@@ -1,0 +1,9 @@
+# This is an example config file. Please rename it to
+# .configrc and replace with your values
+
+ASSETS='assets'
+EXPENSES='expenses'
+INCOME='income'
+LIABILITIES='liabilities'
+
+LEDGER_FILE='/absolute/path/to/your/ledger/file'
