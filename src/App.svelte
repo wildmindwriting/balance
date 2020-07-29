@@ -2,6 +2,7 @@
   import TailwindCSS from './components/TailwindCSS.svelte';
   import Header from './components/Header.svelte';
   import NetWorth from './components/NetWorth.svelte';
+  import NetWorthGraph from './components/Graphs/NetWorthOverTime.svelte';
   import Register from './components/Register.svelte';
 
   let activeSegment: string;
@@ -16,6 +17,7 @@
     <h1 class="uppercase font-thin text-5xl tracking-wider text-logo-red">Balance</h1>
     <p><em>Balance</em> is a front-end for viewing your <a href="https://ledger-cli.org">ledger</a> files.</p>
     <NetWorth />
+    <NetWorthGraph />
   {/if}
 
   {#if (activeSegment === 'register') }

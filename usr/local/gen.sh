@@ -1,11 +1,9 @@
 #!/bin/sh
 # Output the various reports from ledger into CSVs for D3
-if test -f .configrc ; then
-  . ./.configrc
-else
+if ! test -f balance.config.js ; then
   echo "ERROR"
-  echo "You do not have a .configrc file"
-  echo "Please copy configrc.example to .configrc"
+  echo "You do not have a .env file"
+  echo "Please copy env.example to .configrc"
   exit
 fi
 
@@ -17,24 +15,24 @@ then
   exit
 fi
 
-mkdir -p src/json
+mkdir -p public/data/csv
+mkdir -p public/data/json
 
-# Generate Net Worth report
-echo "[" > $PWD/src/json/networth-history.json
-ledger -f $LEDGER_FILE -J reg ^$ASSETS ^$LIABILITIES -X $ --no-rounding -M --collapse --plot-total-format="  { \"date\": \"%(format_date(date, \"%Y-%m-%d\"))\", \"amount\": \"%(abs(quantity(display_total)))\" },\n" >> $PWD/src/json/networth-history.json
-sed -i '$ s/.$//' $PWD/src/json/networth-history.json
-echo "]" >> $PWD/src/json/networth-history.json
+ASSETS="$(sed -n 's/\s*\"ASSETS\": \"\(.*\)\",/\1/gp' balance.config.js)"
+EXCHANGE_COMMODITY="$(sed -n 's/\s*\"EXCHANGE_COMMODITY\": \"\(.*\)\",/\1/gp' balance.config.js)"
+LEDGER_FILE="$(sed -n 's/\s*\"LEDGER_FILE\": \"\(.*\)\"/\1/gp' balance.config.js)"
+LIABILITIES="$(sed -n 's/\s*\"LIABILITIES\": \"\(.*\)\",/\1/gp' balance.config.js)"
 
-# echo "ledger -f $LEDGER_FILE --monthly --collapse -X $ bal $ASSETS $LIABILITIES -J"
-# Generate account balances
-echo "[" > $PWD/src/json/balances.json
-ledger -f $LEDGER_FILE bal ^$ASSETS ^$LIABILITIES -X $ --no-total --balance-format "  { \"account\": \"%A\", \"partial_account\": \"%(partial_account)\", \"amount\": \"%T\", \"depth\": %(depth) },\n" >> $PWD/src/json/balances.json
-sed -i '$ s/.$//' $PWD/src/json/balances.json
-echo "]" >> $PWD/src/json/balances.json
+# Straight up register, no commodity conversion
+echo "date,code,payee,account,commodity,quantity,status,note" > $PWD/public/data/csv/ledger.csv
+ledger -f $LEDGER_FILE csv --sort date >> $PWD/public/data/csv/ledger.csv
 
-echo "[" > $PWD/src/json/register.json
-ledger -f $LEDGER_FILE reg -E -X $ --no-revalued --format="  { \"begin\": \"%b\", \"end\": \"%e\", \"payee\": \"%P\", \"date\": \"%D\", \"formatted_date\": \"%(format_date(date, \"%Y-%m-%d\"))\", \"account\": \"%A\", \"amount\": \"%t\", \"balance\": \"%T\", \"state\": %(quoted(cleared ? \"*\" : (pending ? \"!\" : \"\"))), \"note\": %(quoted(join(note | xact.note))) },\n" >> $PWD/src/json/register.json
-sed -i '$ s/.$//' $PWD/src/json/register.json
-echo "]" >> $PWD/src/json/register.json
+# Straight up register, commodity conversion
+echo "date,code,payee,account,commodity,quantity,status,note" > $PWD/public/data/csv/exchange-ledger.csv
+ledger -f $LEDGER_FILE csv --sort date -X $EXCHANGE_COMMODITY >> $PWD/public/data/csv/exchange-ledger.csv
 
-
+# Net worth report
+echo "[" > $PWD/public/data/json/networth-history.json
+ledger -f $LEDGER_FILE -J reg ^$ASSETS ^$LIABILITIES -X $EXCHANGE_COMMODITY --no-rounding -M --collapse --plot-total-format="{ \"date\": \"%(format_date(date, \"%Y-%m-%d\"))\", \"amount\": \"%(abs(quantity(display_total)))\" }," >> $PWD/public/data/json/networth-history.json
+sed -i 's/,$//' $PWD/public/data/json/networth-history.json
+echo "]" >> $PWD/public/data/json/networth-history.json

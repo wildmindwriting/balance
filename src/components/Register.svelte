@@ -2,15 +2,7 @@
   import accounting from 'accounting';
   import { onMount } from 'svelte';
   
-  import * as register from '../json/register.json';
-
-  register.default.sort((a,b) => {
-    return new Date(a.date) - new Date(b.date);
-  });
-
-  $: {
-
-  }
+  let register = [];
 
 </script>
 
@@ -27,7 +19,7 @@
     </tr>
   </thead>
   <tbody>
-    {#each register.default as item, i}
+    {#each register as item, i}
       <tr>
         {#if (i === 0) }
             <td class="border px-4 py-2">{ item.date }</td>

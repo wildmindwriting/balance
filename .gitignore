@@ -1,7 +1,10 @@
 .configrc
+.env
+balance.config.js
 yarn-error.log
 /node_modules/
 /public/build/
+/public/data/
 /src/json/*.json
 /test/ledger-cli-example-master
 
