@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "gen": "sh usr/local/gen.sh",
+    "genpy": "ledger python usr/local/gen.py && yarn dev",
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public",
